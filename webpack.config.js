@@ -24,11 +24,20 @@ const common = {
         loader: "awesome-typescript-loader",
       },
       {
+        test: /.css$/,
+        use: [
+          'css-loader',
+        ]
+      },
+      {
         test : /\.scss$/,
         use: {
           loader: 'sass-loader',
           options: {
-            includePaths: ["./node_modules"]
+            sourceMap: true,
+            sassOptions: {
+              includePaths: ["./node_modules"]
+            }
           }
         }
       },
