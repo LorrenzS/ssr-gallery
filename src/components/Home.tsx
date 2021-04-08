@@ -2,11 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import Lottie from 'react-lottie';
 import animation from '../assets/animations/rightpoint_animation.json';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import Search from './Search';
 import { AppState } from '../store';
 import { getDefaultPhotos } from '../store/photos/actions';
-import { GalleryError, Photo } from '../core/models';
+import { GalleryError, PhotosResponse } from '../core/models';
 import Gallery from './Gallery';
 
 const Animation = styled.div`
@@ -19,18 +19,43 @@ const HomeContainer = styled.div`
   align-items: center;
   flex-direction: column;
   height: 100vh;
-  overflow-y: auto;
-  overflow-x: hidden;
+  width: 100vw;
+  overflow: hidden;
+  position: relative;
+`;
+
+const slideUp = keyframes`
+  from {
+    top: 100%;
+    opacity: 0%;
+  }
+  to {
+    top: 0;
+    opacity: 100%;
+  }
+`;
+
+const ContentContainer = styled(HomeContainer)`
+  position: absolute;
+  top: 100%;
+  opacity: 0;
+
+  &.active {
+    top: 0;
+    opacity: 100;
+    animation: ${slideUp} 0.3s ease-in;
+  }
 `;
 
 interface IHomeProps {
   isLoading: boolean;
   error: GalleryError;
-  photos: Photo[];
+  photos: PhotosResponse;
   getDefaultPhotos: () => Promise<void>;
 }
 
 const Home: React.FC<IHomeProps> = (props) => {
+  const { getDefaultPhotos } = props;
   const [animationActive, setAnimationActive] = useState(true);
 
   const options = {
@@ -48,6 +73,7 @@ const Home: React.FC<IHomeProps> = (props) => {
 
   useEffect(() => {
     displayAnimation();
+    getDefaultPhotos();
   }, []);
 
   return (
@@ -57,10 +83,10 @@ const Home: React.FC<IHomeProps> = (props) => {
           <Lottie options={options} />
         </Animation>
       ) : (
-        <>
+        <ContentContainer className={animationActive ? '' : 'active'}>
           <Search />
           <Gallery />
-        </>
+        </ContentContainer>
       )}
     </HomeContainer>
   );

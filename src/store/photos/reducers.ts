@@ -1,11 +1,11 @@
 import { Reducer } from "redux";
 import { PhotosActionTypes, PhotosState, PHOTOS_FAILURE, PHOTOS_LOADING, PHOTOS_SUCCESS } from "./types";
-import { GalleryError, Photo } from "../../core/models";
+import { GalleryError, PhotosResponse } from "../../core/models";
 
 const initialState: PhotosState = {
     isLoading: false,
     error: undefined,
-    photos: []
+    photos: undefined,
 }
 
 const photosReducer: Reducer<PhotosState> = (state = initialState, action: PhotosActionTypes): PhotosState => {
@@ -20,13 +20,13 @@ const photosReducer: Reducer<PhotosState> = (state = initialState, action: Photo
             return {
                 isLoading: false,
                 error: undefined,
-                photos: action.payload as Photo[]
+                photos: action.payload as PhotosResponse
             }
         case PHOTOS_FAILURE:
             return {
                 isLoading: false,
                 error: action.payload as GalleryError,
-                photos: []
+                photos: undefined
             }
         default:
             return state;

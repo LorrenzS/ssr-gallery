@@ -37,7 +37,11 @@ const clientConfig = {
           },
           'css-loader',
         ],
-      }
+      },
+      {
+        test: /\.svg$/,
+        use: ['@svgr/webpack'],
+      },
     ],
   },
   plugins: [
@@ -124,7 +128,11 @@ const serverConfig = {
           },
           'css-loader',
         ],
-      }
+      },
+      {
+        test: /\.svg$/,
+        use: ['@svgr/webpack'],
+      },
     ],
   },
   plugins: [

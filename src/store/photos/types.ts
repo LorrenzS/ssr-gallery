@@ -3,7 +3,7 @@ import * as GalleryCore from '../../core';
 export interface PhotosState {
     isLoading: boolean;
     error: GalleryCore.Models.GalleryError;
-    photos: GalleryCore.Models.Photo[];
+    photos: GalleryCore.Models.PhotosResponse;
 }
 
 export const PHOTOS_LOADING: string = 'PHOTOS_LOADING';
@@ -14,9 +14,9 @@ interface PhotosLoading extends GalleryCore.Models.GalleryAction<undefined, type
     type: typeof PHOTOS_LOADING;
   }
   
-  interface PhotosSuccess extends GalleryCore.Models.GalleryAction<GalleryCore.Models.Photo[], typeof PHOTOS_SUCCESS> {
+  interface PhotosSuccess extends GalleryCore.Models.GalleryAction<GalleryCore.Models.PhotosResponse, typeof PHOTOS_SUCCESS> {
     type: typeof PHOTOS_SUCCESS;
-    payload: GalleryCore.Models.Photo[];
+    payload: GalleryCore.Models.PhotosResponse;
   }
   
   interface PhotosFailure extends GalleryCore.Models.GalleryAction<GalleryCore.Models.GalleryError, typeof PHOTOS_FAILURE> {

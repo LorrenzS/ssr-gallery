@@ -28,3 +28,9 @@ export interface Photo {
     urls: PhotoUrls;
 }
 
+export interface PhotosResponse {
+    total: number;
+    total_pages: number;
+    results: Photo[];
+    searchQuery?: string;
+}
