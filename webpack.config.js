@@ -1,10 +1,11 @@
 const path = require('path');
 const nodeExternals = require('webpack-node-externals');
-const HtmlWebpackPlugin = require("html-webpack-plugin");
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const Dotenv = require('dotenv-webpack');
 
-const common = {
+const clientConfig = {
   resolve: {
-    extensions: [".js", ".jsx", ".json", ".ts", ".tsx"],
+    extensions: [".js", ".jsx", ".json", ".ts", ".tsx", ".css", ".scss"],
   },
   module: {
     rules: [
@@ -21,32 +22,28 @@ const common = {
       },
       {
         test: /\.(ts|tsx)$/,
-        loader: "awesome-typescript-loader",
-      },
-      {
-        test: /.css$/,
         use: [
-          'css-loader',
+          { loader: "ts-loader" }
         ]
       },
       {
-        test : /\.scss$/,
-        use: {
-          loader: 'sass-loader',
-          options: {
-            sourceMap: true,
-            sassOptions: {
-              includePaths: ["./node_modules"]
-            }
-          }
-        }
-      },
+        test: /\.css$/i,
+        use: [
+          {
+            loader: MiniCssExtractPlugin.loader,
+            options: {
+              esModule: false,
+            },
+          },
+          'css-loader',
+        ],
+      }
     ],
   },
-};
-
-const clientConfig = {
-  ...common,
+  plugins: [
+    new MiniCssExtractPlugin(),
+    new Dotenv()
+  ],
 
   mode: 'development',
 
@@ -87,13 +84,53 @@ const clientConfig = {
 };
 
 const serverConfig = {
-  ...common,
 
   mode: 'development',
 
   name: 'server',
   target: 'node',
   externals: [nodeExternals()],
+
+  resolve: {
+    extensions: [".js", ".jsx", ".json", ".ts", ".tsx", ".css", ".scss"],
+  },
+  module: {
+    rules: [
+      {
+        test: /\.jsx?$/,
+        loader: 'babel-loader',
+        include: [path.resolve(__dirname, 'src')],
+        query: {
+          presets: [
+            '@babel/preset-env',
+            '@babel/preset-react',
+          ],
+        },
+      },
+      {
+        test: /\.(ts|tsx)$/,
+        use: [
+          { loader: "ts-loader" }
+        ]
+      },
+      {
+        test: /\.css$/i,
+        use: [
+          {
+            loader: MiniCssExtractPlugin.loader,
+            options: {
+              esModule: false,
+            },
+          },
+          'css-loader',
+        ],
+      }
+    ],
+  },
+  plugins: [
+    new MiniCssExtractPlugin(),
+    new Dotenv()
+  ],
 
   entry: {
     server: ['@babel/polyfill', path.resolve(__dirname, 'src', 'server.tsx')],

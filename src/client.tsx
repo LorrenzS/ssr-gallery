@@ -1,11 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { createStore } from 'redux';
 import { Provider } from 'react-redux';
-import reducers from './reducers';
 import { BrowserRouter } from 'react-router-dom';
 
 import App from './components/App';
+import { createStore } from './store';
 
 declare global {
   interface Window {
@@ -13,7 +12,7 @@ declare global {
   }
 }
 
-const store = createStore(reducers, { ...window.APP_STATE });
+const store = createStore({ ...window.APP_STATE });
 
 ReactDOM.hydrate(
   <BrowserRouter>
@@ -21,5 +20,5 @@ ReactDOM.hydrate(
       <App />
     </Provider>
   </BrowserRouter>,
-  document.getElementById('app')
+  document.getElementById('app'),
 );

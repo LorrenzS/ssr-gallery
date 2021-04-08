@@ -2,34 +2,36 @@ import express from 'express';
 import path from 'path';
 import React from 'react';
 import ReactDOMServer from 'react-dom/server';
-import { createStore } from 'redux';
 import { Provider } from 'react-redux';
-import reducers from './reducers';
 import { StaticRouter } from 'react-router';
 
 import Html from './components/Html';
 import App from './components/App';
+import { createStore } from './store';
+import { getDefaultPhotos } from './store/photos/actions';
 
 const app = express();
+
+require('dotenv').config();
 
 app.use(express.static(path.join(__dirname)));
 
 app.get('*', async (req, res) => {
   const scripts = ['vendor.js', 'client.js'];
 
-  const initialState = { initialText: 'rendered on the server' };
+  const store = createStore();
 
-  const store = createStore(reducers, initialState);
+  const initialState = store.getState();
 
   const appMarkup = ReactDOMServer.renderToString(
     <StaticRouter location={req.url} context={{}}>
       <Provider store={store}>
         <App />
       </Provider>
-    </StaticRouter>
+    </StaticRouter>,
   );
   const html = ReactDOMServer.renderToStaticMarkup(
-    <Html children={appMarkup} scripts={scripts} initialState={initialState} />
+    <Html children={appMarkup} scripts={scripts} initialState={initialState} />,
   );
 
   res.send(`<!doctype html>${html}`);
