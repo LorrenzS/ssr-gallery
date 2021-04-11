@@ -34,3 +34,8 @@ export interface PhotosResponse {
     results: Photo[];
     searchQuery?: string;
 }
+
+export interface ExpandedImage {
+    imageUrl: string;
+    loadingImageUrl: string;
+}

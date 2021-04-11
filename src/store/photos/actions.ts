@@ -40,7 +40,6 @@ export const getDefaultPhotos = (): ThunkAction<
             total_pages: 1,
             results: response.data as Photo[],
         }
-        console.log(defaultPhotoResponse);
         dispatch(photosSuccessAction(defaultPhotoResponse))
     }).catch(error => {
         dispatch(photosFailureAction(error));

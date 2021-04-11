@@ -54,7 +54,7 @@ interface IHomeProps {
   getDefaultPhotos: () => Promise<void>;
 }
 
-const Home: React.FC<IHomeProps> = (props) => {
+const Home: React.FC<IHomeProps> = props => {
   const { getDefaultPhotos } = props;
   const [animationActive, setAnimationActive] = useState(true);
 

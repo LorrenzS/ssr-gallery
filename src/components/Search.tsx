@@ -15,23 +15,28 @@ const SearchContainer = styled.section`
 const Input = styled.input`
   height: 40px;
   width: 20%;
-  border-radius: 6px 0 0 6px;
   padding: 0 15px;
   border: 2px solid black;
   border-right: none;
+  font-family: Ubuntu;
+  font-size: 16px;
 `;
 
 const SearchButton = styled.button`
   height: 44px;
-  width: 60px;
+  width: 100px;
   display: flex;
   align-items: center;
   justify-content: center;
   background-color: black;
-  padding: 18px;
+  border: none;
 
-  .search_icon_svg__cls-1 {
-    fill: #fff;
+  svg {
+    height: 25px;
+
+    path {
+      fill: #fff;
+    }
   }
 `;
 
@@ -50,7 +55,7 @@ const Search: React.FC = ({ searchPhotos }: any) => {
         type="text"
         placeholder="Search images of..."
         value={searchTerms}
-        onChange={(event) => setSerachTerms(event.target.value)}
+        onChange={event => setSerachTerms(event.target.value)}
       />
       <SearchButton onClick={onSearchClick}>
         <SearchIcon />

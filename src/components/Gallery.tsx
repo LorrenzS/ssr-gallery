@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import { AppState } from '../store';
-import { GalleryError, PhotosResponse } from '../core/models';
+import { ExpandedImage, GalleryError, PhotosResponse } from '../core/models';
 import loadingAnimation from '../assets/animations/search_loading.json';
 import Lottie from 'react-lottie';
 import { searchPhotos } from '../store/photos/actions';
 import ChevronIcon from '../assets/images/chevron.svg';
 import { usePrevious } from '../core/hooks';
+import { photosPerPage } from '../services/PhotoService';
+import Image from './image';
 
 interface IGalleryProps {
   isLoading: boolean;
@@ -26,6 +28,7 @@ const GalleryContainer = styled.section`
   align-items: center;
   justify-content: center;
   flex: 1;
+  position: relative;
 `;
 
 const GalleryViewer = styled.div`
@@ -46,12 +49,32 @@ const PhotoContainer = styled.div`
   position: relative;
 `;
 
-const Image = styled.img`
+const ThumbImage = styled.img`
   margin: 0;
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  width: 100%;
+
+  &:hover {
+    cursor: -moz-zoom-in;
+    cursor: -webkit-zoom-in;
+    cursor: zoom-in;
+  }
+`;
+
+const LoadingAnimationContainer = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: #fff;
+  z-index: 1;
 `;
 
 const LoadingAnimation = styled.div`
@@ -74,18 +97,15 @@ const PrevButton = styled(NextButton)`
   margin-left: 0;
 `;
 
-const Gallery: React.FC<IGalleryProps> = (props) => {
+const Gallery: React.FC<IGalleryProps> = props => {
   const [currentPage, setCurrentPage] = useState(1);
+  const [imagesLoaded, setImagesLoaded] = useState(false);
+  const [imageLoadedCount, setImageLoadedCount] = useState(0);
+  const [expandedImage, setExpandedImage] = useState(undefined as ExpandedImage | undefined);
   const { isLoading, error, photos, searchPhotos } = props;
+
   const { total_pages, results, searchQuery } = photos;
-
   const prevSearchQuery = usePrevious(searchQuery);
-
-  useEffect(() => {
-    if (searchQuery !== prevSearchQuery) {
-      setCurrentPage(1);
-    }
-  }, [searchQuery, prevSearchQuery]);
 
   const options = {
     loop: true,
@@ -96,11 +116,30 @@ const Gallery: React.FC<IGalleryProps> = (props) => {
     },
   };
 
+  useEffect(() => {
+    if (searchQuery !== prevSearchQuery) {
+      setCurrentPage(1);
+      resetImagesLoaded();
+    }
+  }, [searchQuery, prevSearchQuery]);
+
+  useEffect(() => {
+    if (imageLoadedCount === photosPerPage) {
+      setImagesLoaded(true);
+    }
+  }, [imageLoadedCount]);
+
+  const resetImagesLoaded = () => {
+    setImagesLoaded(false);
+    setImageLoadedCount(0);
+  };
+
   const onPrevClick = () => {
     if (currentPage > 1 && searchQuery) {
       const newCurrentPage = currentPage - 1;
       setCurrentPage(newCurrentPage);
       searchPhotos(newCurrentPage, searchQuery);
+      resetImagesLoaded();
     }
   };
 
@@ -109,16 +148,24 @@ const Gallery: React.FC<IGalleryProps> = (props) => {
       const newCurrentPage = currentPage + 1;
       setCurrentPage(newCurrentPage);
       searchPhotos(newCurrentPage, searchQuery);
+      resetImagesLoaded();
     }
   };
 
+  const onImageLoaded = () => {
+    setImageLoadedCount(imageLoadedCount + 1);
+  };
+
   return (
-    <GalleryContainer>
-      {isLoading ? (
-        <LoadingAnimation>
-          <Lottie options={options} />
-        </LoadingAnimation>
-      ) : (
+    <>
+      <GalleryContainer>
+        {(isLoading || !imagesLoaded) && (
+          <LoadingAnimationContainer>
+            <LoadingAnimation>
+              <Lottie options={options} />
+            </LoadingAnimation>
+          </LoadingAnimationContainer>
+        )}
         <>
           <PrevButton
             onClick={onPrevClick}
@@ -128,13 +175,22 @@ const Gallery: React.FC<IGalleryProps> = (props) => {
           >
             <ChevronIcon />
           </PrevButton>
-
           <GalleryViewer>
             {results &&
-              results.map((photo) => {
+              results.map(photo => {
                 return (
                   <PhotoContainer key={photo.id}>
-                    <Image src={photo.urls.small} />
+                    <ThumbImage
+                      src={photo.urls.small}
+                      alt={photo.description}
+                      onLoad={onImageLoaded}
+                      onClick={() =>
+                        setExpandedImage({
+                          imageUrl: photo.urls.full,
+                          loadingImageUrl: photo.urls.small,
+                        } as ExpandedImage)
+                      }
+                    />
                   </PhotoContainer>
                 );
               })}
@@ -143,15 +199,15 @@ const Gallery: React.FC<IGalleryProps> = (props) => {
           <NextButton
             onClick={onNextClick}
             style={{
-              visibility:
-                currentPage < total_pages && searchQuery ? 'visible' : 'hidden',
+              visibility: currentPage < total_pages && searchQuery ? 'visible' : 'hidden',
             }}
           >
             <ChevronIcon />
           </NextButton>
         </>
-      )}
-    </GalleryContainer>
+      </GalleryContainer>
+      <Image image={expandedImage} onClose={() => setExpandedImage(undefined)} />
+    </>
   );
 };
 
@@ -162,8 +218,7 @@ const mapStateToProps = (state: AppState) => ({
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
-  searchPhotos: (pageNumber: number, searchQuery: string) =>
-    dispatch(searchPhotos(pageNumber, searchQuery)),
+  searchPhotos: (pageNumber: number, searchQuery: string) => dispatch(searchPhotos(pageNumber, searchQuery)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Gallery);
