@@ -107,6 +107,8 @@ const Gallery: React.FC<IGalleryProps> = props => {
   const { total_pages, results, searchQuery } = photos;
   const prevSearchQuery = usePrevious(searchQuery);
 
+  console.log(photos);
+
   const options = {
     loop: true,
     autoplay: true,

@@ -26,25 +26,25 @@ const HomeContainer = styled.div`
 
 const slideUp = keyframes`
   from {
-    top: 100%;
     opacity: 0%;
   }
   to {
-    top: 0;
     opacity: 100%;
   }
 `;
 
 const ContentContainer = styled(HomeContainer)`
-  position: absolute;
-  top: 100%;
   opacity: 0;
 
   &.active {
-    top: 0;
-    opacity: 100;
+    opacity: 100%;
     animation: ${slideUp} 0.3s ease-in;
   }
+`;
+
+const Title = styled.h1`
+  padding: 13px;
+  font-family: Ubuntu;
 `;
 
 interface IHomeProps {
@@ -84,6 +84,7 @@ const Home: React.FC<IHomeProps> = props => {
         </Animation>
       ) : (
         <ContentContainer className={animationActive ? '' : 'active'}>
+          <Title>Photo Search</Title>
           <Search />
           <Gallery />
         </ContentContainer>

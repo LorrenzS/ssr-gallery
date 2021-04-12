@@ -71,12 +71,16 @@ const Image: React.FC<IImageProps> = props => {
     },
   };
 
+  const closeImage = () => {
+    onClose();
+    setImageLoaded(false);
+  };
+
   const imageRef = useRef<HTMLDivElement>(null);
 
   useOutsideClick(imageRef, () => {
     if (image) {
-      onClose();
-      setImageLoaded(false);
+      closeImage();
     }
   });
 
@@ -91,7 +95,7 @@ const Image: React.FC<IImageProps> = props => {
           <Lottie options={options} />
         </LoadingAnimation>
       )}
-      <CloseButton onClick={onClose}>
+      <CloseButton onClick={closeImage}>
         <CloseIcon />
       </CloseButton>
       <ImageOuterContainer ref={imageRef} style={{ display: imageLoaded ? 'block' : 'none' }}>

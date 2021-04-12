@@ -9,7 +9,7 @@ const SearchContainer = styled.section`
   justify-content: center;
   align-items: center;
   width: 100%;
-  margin: 100px auto 50px;
+  margin: 0px auto 50px;
 `;
 
 const Input = styled.input`
