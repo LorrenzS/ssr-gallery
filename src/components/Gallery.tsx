@@ -1,21 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import styled, { keyframes } from 'styled-components';
+import styled from 'styled-components';
 import { AppState } from '../store';
-import { ExpandedImage, GalleryError, PhotosResponse } from '../core/models';
+import { Photo, GalleryError, PhotosResponse } from '../core/models';
 import loadingAnimation from '../assets/animations/search_loading.json';
 import Lottie from 'react-lottie';
-import { searchPhotos } from '../store/photos/actions';
+import { searchPhotos, setExpandedImage } from '../store/photos/actions';
 import ChevronIcon from '../assets/images/chevron.svg';
 import { usePrevious } from '../core/hooks';
 import { photosPerPage } from '../services/PhotoService';
-import Image from './image';
+import Image from './Image';
 
 interface IGalleryProps {
   isLoading: boolean;
   error: GalleryError;
   photos: PhotosResponse;
   searchPhotos: (pageNumber: number, searchQuery: string) => void;
+  expandImage: (expandedImage: Photo) => void;
 }
 
 const GalleryContainer = styled.section`
@@ -81,6 +82,18 @@ const LoadingAnimation = styled.div`
   width: 100px;
 `;
 
+const ErrorMessage = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: Ubuntu;
+  font-size: 30px;
+  text-align: center;
+  color: red;
+`;
+
 const NextButton = styled.button`
   background-color: transparent;
   border: none;
@@ -101,13 +114,10 @@ const Gallery: React.FC<IGalleryProps> = props => {
   const [currentPage, setCurrentPage] = useState(1);
   const [imagesLoaded, setImagesLoaded] = useState(false);
   const [imageLoadedCount, setImageLoadedCount] = useState(0);
-  const [expandedImage, setExpandedImage] = useState(undefined as ExpandedImage | undefined);
-  const { isLoading, error, photos, searchPhotos } = props;
-
+  const { isLoading, error, photos, searchPhotos, expandImage } = props;
+  console.log(photos);
   const { total_pages, results, searchQuery } = photos;
   const prevSearchQuery = usePrevious(searchQuery);
-
-  console.log(photos);
 
   const options = {
     loop: true,
@@ -168,6 +178,7 @@ const Gallery: React.FC<IGalleryProps> = props => {
             </LoadingAnimation>
           </LoadingAnimationContainer>
         )}
+        {error && <ErrorMessage>There was an error getting photos.</ErrorMessage>}
         <>
           <PrevButton
             onClick={onPrevClick}
@@ -186,12 +197,7 @@ const Gallery: React.FC<IGalleryProps> = props => {
                       src={photo.urls.small}
                       alt={photo.description}
                       onLoad={onImageLoaded}
-                      onClick={() =>
-                        setExpandedImage({
-                          imageUrl: photo.urls.full,
-                          loadingImageUrl: photo.urls.small,
-                        } as ExpandedImage)
-                      }
+                      onClick={() => expandImage(photo)}
                     />
                   </PhotoContainer>
                 );
@@ -208,7 +214,7 @@ const Gallery: React.FC<IGalleryProps> = props => {
           </NextButton>
         </>
       </GalleryContainer>
-      <Image image={expandedImage} onClose={() => setExpandedImage(undefined)} />
+      <Image />
     </>
   );
 };
@@ -221,6 +227,7 @@ const mapStateToProps = (state: AppState) => ({
 
 const mapDispatchToProps = (dispatch: any) => ({
   searchPhotos: (pageNumber: number, searchQuery: string) => dispatch(searchPhotos(pageNumber, searchQuery)),
+  expandImage: (expandedImage: Photo) => dispatch(setExpandedImage(expandedImage)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Gallery);
