@@ -53,7 +53,7 @@ const ImageButton = styled.button`
   background-color: transparent;
 
   &:focus {
-    box-shadow: 0px 0px 0px 3px red;
+    box-shadow: 0px 0px 0px 2px red;
   }
 
   &:hover {
