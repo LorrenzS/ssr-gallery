@@ -22,10 +22,18 @@ export interface PhotoUrls {
     thumb: string;
 }
 
+export interface PhotoLinks {
+    self: string;
+    html: string;
+    download: string;
+    download_location: string;
+}
+
 export interface Photo {
     id: string;
     description: string;
     urls: PhotoUrls;
+    links: PhotoLinks;
 }
 
 export interface PhotosResponse {
@@ -33,9 +41,4 @@ export interface PhotosResponse {
     total_pages: number;
     results: Photo[];
     searchQuery?: string;
-}
-
-export interface ExpandedImage {
-    imageUrl: string;
-    loadingImageUrl: string;
 }

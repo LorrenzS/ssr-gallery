@@ -26,6 +26,10 @@ export abstract class PhotoService {
     }
 
     public static async getRandomPhoto() {
-        return axios.get(`${baseUri}/photos/random${clientId}`)
+        return axios.get(`${baseUri}/photos/random`, {
+            headers: {
+                'Authorization': `Client-ID ${clientId}`
+            }
+        })
     }
 }

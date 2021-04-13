@@ -1,21 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
-import styled, { keyframes } from 'styled-components';
+import styled from 'styled-components';
 import { AppState } from '../store';
-import { ExpandedImage, GalleryError, PhotosResponse } from '../core/models';
+import { Photo, GalleryError, PhotosResponse } from '../core/models';
 import loadingAnimation from '../assets/animations/search_loading.json';
 import Lottie from 'react-lottie';
-import { searchPhotos } from '../store/photos/actions';
+import { searchPhotos, setExpandedImage } from '../store/photos/actions';
 import ChevronIcon from '../assets/images/chevron.svg';
 import { usePrevious } from '../core/hooks';
 import { photosPerPage } from '../services/PhotoService';
-import Image from './image';
+import Image from './Image';
 
 interface IGalleryProps {
   isLoading: boolean;
   error: GalleryError;
   photos: PhotosResponse;
   searchPhotos: (pageNumber: number, searchQuery: string) => void;
+  expandImage: (expandedImage: Photo) => void;
 }
 
 const GalleryContainer = styled.section`
@@ -41,12 +42,25 @@ const GalleryViewer = styled.div`
   justify-content: space-evenly;
 `;
 
-const PhotoContainer = styled.div`
+const ImageButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
   position: relative;
+  outline: none;
+  border: none;
+  background-color: transparent;
+
+  &:focus {
+    box-shadow: 0px 0px 0px 2px red;
+  }
+
+  &:hover {
+    cursor: -moz-zoom-in;
+    cursor: -webkit-zoom-in;
+    cursor: zoom-in;
+  }
 `;
 
 const ThumbImage = styled.img`
@@ -56,12 +70,6 @@ const ThumbImage = styled.img`
   left: 50%;
   transform: translate(-50%, -50%);
   width: 100%;
-
-  &:hover {
-    cursor: -moz-zoom-in;
-    cursor: -webkit-zoom-in;
-    cursor: zoom-in;
-  }
 `;
 
 const LoadingAnimationContainer = styled.div`
@@ -79,6 +87,18 @@ const LoadingAnimationContainer = styled.div`
 
 const LoadingAnimation = styled.div`
   width: 100px;
+`;
+
+const ErrorMessage = styled.div`
+  width: 100%;
+  height: 85%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: Ubuntu;
+  font-size: 30px;
+  text-align: center;
+  color: red;
 `;
 
 const NextButton = styled.button`
@@ -101,13 +121,14 @@ const Gallery: React.FC<IGalleryProps> = props => {
   const [currentPage, setCurrentPage] = useState(1);
   const [imagesLoaded, setImagesLoaded] = useState(false);
   const [imageLoadedCount, setImageLoadedCount] = useState(0);
-  const [expandedImage, setExpandedImage] = useState(undefined as ExpandedImage | undefined);
-  const { isLoading, error, photos, searchPhotos } = props;
+  const { isLoading, error, photos, searchPhotos, expandImage } = props;
+
+  if (error) {
+    return <ErrorMessage>There was an error getting photos.</ErrorMessage>;
+  }
 
   const { total_pages, results, searchQuery } = photos;
   const prevSearchQuery = usePrevious(searchQuery);
-
-  console.log(photos);
 
   const options = {
     loop: true,
@@ -170,6 +191,7 @@ const Gallery: React.FC<IGalleryProps> = props => {
         )}
         <>
           <PrevButton
+            aria-label="Previous Page Button"
             onClick={onPrevClick}
             style={{
               visibility: currentPage > 1 && searchQuery ? 'visible' : 'hidden',
@@ -181,24 +203,15 @@ const Gallery: React.FC<IGalleryProps> = props => {
             {results &&
               results.map(photo => {
                 return (
-                  <PhotoContainer key={photo.id}>
-                    <ThumbImage
-                      src={photo.urls.small}
-                      alt={photo.description}
-                      onLoad={onImageLoaded}
-                      onClick={() =>
-                        setExpandedImage({
-                          imageUrl: photo.urls.full,
-                          loadingImageUrl: photo.urls.small,
-                        } as ExpandedImage)
-                      }
-                    />
-                  </PhotoContainer>
+                  <ImageButton key={photo.id} onClick={() => expandImage(photo)} aria-label={photo.description}>
+                    <ThumbImage src={photo.urls.small} alt={photo.description} onLoad={onImageLoaded} />
+                  </ImageButton>
                 );
               })}
           </GalleryViewer>
 
           <NextButton
+            aria-label="Next Page Button"
             onClick={onNextClick}
             style={{
               visibility: currentPage < total_pages && searchQuery ? 'visible' : 'hidden',
@@ -208,7 +221,7 @@ const Gallery: React.FC<IGalleryProps> = props => {
           </NextButton>
         </>
       </GalleryContainer>
-      <Image image={expandedImage} onClose={() => setExpandedImage(undefined)} />
+      <Image />
     </>
   );
 };
@@ -221,6 +234,7 @@ const mapStateToProps = (state: AppState) => ({
 
 const mapDispatchToProps = (dispatch: any) => ({
   searchPhotos: (pageNumber: number, searchQuery: string) => dispatch(searchPhotos(pageNumber, searchQuery)),
+  expandImage: (expandedImage: Photo) => dispatch(setExpandedImage(expandedImage)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Gallery);
