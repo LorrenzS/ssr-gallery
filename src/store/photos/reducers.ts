@@ -1,11 +1,21 @@
 import { Reducer } from "redux";
-import { CLEAR_EXPANDED_IMAGE, PhotosActionTypes, PhotosState, PHOTOS_FAILURE, PHOTOS_LOADING, PHOTOS_SUCCESS, SET_EXPANDED_IMAGE } from "./types";
+import { 
+    CLEAR_EXPANDED_IMAGE, 
+    GET_RANDOM_IMAGE_FAILURE, 
+    GET_RANDOM_IMAGE_SUCCESS, 
+    PhotosActionTypes, 
+    PhotosState, 
+    PHOTOS_FAILURE, 
+    PHOTOS_LOADING, 
+    PHOTOS_SUCCESS, 
+    SET_EXPANDED_IMAGE } from "./types";
 import { Photo, GalleryError, PhotosResponse } from "../../core/models";
 
 const initialState: PhotosState = {
     isLoading: false,
     error: undefined,
     photos: undefined,
+    randomImageError: undefined,
     expandedImage: undefined
 }
 
@@ -40,6 +50,17 @@ const photosReducer: Reducer<PhotosState> = (state = initialState, action: Photo
             return {
                 ...state,
                 expandedImage: undefined
+            }
+        case GET_RANDOM_IMAGE_SUCCESS:
+            return {
+                ...state,
+                expandedImage: action.payload as Photo
+            }
+        case GET_RANDOM_IMAGE_FAILURE:
+            return {
+                ...state,
+                randomImageError: action.payload as GalleryError,
+                expandedImage: undefined,
             }
         default:
             return state;

@@ -1,6 +1,6 @@
 import { ThunkAction } from 'redux-thunk';
 import { GalleryAction, GalleryError, Photo, PhotosResponse } from '../../core/models';
-import { CLEAR_EXPANDED_IMAGE, PHOTOS_FAILURE, PHOTOS_LOADING, PHOTOS_SUCCESS, SET_EXPANDED_IMAGE } from './types';
+import { CLEAR_EXPANDED_IMAGE, GET_RANDOM_IMAGE_FAILURE, GET_RANDOM_IMAGE_SUCCESS, PHOTOS_FAILURE, PHOTOS_LOADING, PHOTOS_SUCCESS, SET_EXPANDED_IMAGE } from './types';
 import { AppState } from '..';
 import { PhotoService } from '../../services/PhotoService';
 
@@ -39,6 +39,21 @@ export const clearExpandedImageAction = () => {
     }
 }
 
+export const randomPhotoSuccessAction = (photo: Photo) => {
+    return {
+        type: GET_RANDOM_IMAGE_SUCCESS,
+        payload: photo
+    }
+}
+
+export const randomPhotoFailureAction = (error: GalleryError) => {
+    return {
+        type: GET_RANDOM_IMAGE_FAILURE,
+        payload: error,
+        error: true
+    }
+}
+
 // thunk actions
 export const getDefaultPhotos = (): ThunkAction<
     Promise<void>,
@@ -74,6 +89,19 @@ export const searchPhotos = (pageNumber: number, query: string): ThunkAction<
     });
 };
 
+export const getRandomPhoto = (): ThunkAction<
+    Promise<void>,
+    AppState,
+    null,
+    GalleryAction
+> => async dispatch => {
+    await PhotoService.getRandomPhoto().then(response => {
+        dispatch(randomPhotoSuccessAction(response.data))
+    }).catch(error => {
+        dispatch(randomPhotoFailureAction(error));
+    });
+};
+
 
 export const setExpandedImage = (expandedImage: Photo): ThunkAction<
     Promise<void>,
@@ -81,7 +109,6 @@ export const setExpandedImage = (expandedImage: Photo): ThunkAction<
     null,
     GalleryAction
 > => async dispatch => {
-    console.log(expandedImage);
     dispatch(setExpandedImageAction(expandedImage))
 };
 

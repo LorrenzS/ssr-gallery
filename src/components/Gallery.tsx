@@ -42,12 +42,25 @@ const GalleryViewer = styled.div`
   justify-content: space-evenly;
 `;
 
-const PhotoContainer = styled.div`
+const ImageButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
   position: relative;
+  outline: none;
+  border: none;
+  background-color: transparent;
+
+  &:focus {
+    box-shadow: 0px 0px 0px 3px red;
+  }
+
+  &:hover {
+    cursor: -moz-zoom-in;
+    cursor: -webkit-zoom-in;
+    cursor: zoom-in;
+  }
 `;
 
 const ThumbImage = styled.img`
@@ -57,12 +70,6 @@ const ThumbImage = styled.img`
   left: 50%;
   transform: translate(-50%, -50%);
   width: 100%;
-
-  &:hover {
-    cursor: -moz-zoom-in;
-    cursor: -webkit-zoom-in;
-    cursor: zoom-in;
-  }
 `;
 
 const LoadingAnimationContainer = styled.div`
@@ -184,6 +191,7 @@ const Gallery: React.FC<IGalleryProps> = props => {
         )}
         <>
           <PrevButton
+            aria-label="Previous Page Button"
             onClick={onPrevClick}
             style={{
               visibility: currentPage > 1 && searchQuery ? 'visible' : 'hidden',
@@ -195,19 +203,15 @@ const Gallery: React.FC<IGalleryProps> = props => {
             {results &&
               results.map(photo => {
                 return (
-                  <PhotoContainer key={photo.id}>
-                    <ThumbImage
-                      src={photo.urls.small}
-                      alt={photo.description}
-                      onLoad={onImageLoaded}
-                      onClick={() => expandImage(photo)}
-                    />
-                  </PhotoContainer>
+                  <ImageButton key={photo.id} onClick={() => expandImage(photo)} aria-label={photo.description}>
+                    <ThumbImage src={photo.urls.small} alt={photo.description} onLoad={onImageLoaded} />
+                  </ImageButton>
                 );
               })}
           </GalleryViewer>
 
           <NextButton
+            aria-label="Next Page Button"
             onClick={onNextClick}
             style={{
               visibility: currentPage < total_pages && searchQuery ? 'visible' : 'hidden',
