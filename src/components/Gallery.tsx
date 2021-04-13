@@ -84,7 +84,7 @@ const LoadingAnimation = styled.div`
 
 const ErrorMessage = styled.div`
   width: 100%;
-  height: 100%;
+  height: 85%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -115,7 +115,11 @@ const Gallery: React.FC<IGalleryProps> = props => {
   const [imagesLoaded, setImagesLoaded] = useState(false);
   const [imageLoadedCount, setImageLoadedCount] = useState(0);
   const { isLoading, error, photos, searchPhotos, expandImage } = props;
-  console.log(photos);
+
+  if (error) {
+    return <ErrorMessage>There was an error getting photos.</ErrorMessage>;
+  }
+
   const { total_pages, results, searchQuery } = photos;
   const prevSearchQuery = usePrevious(searchQuery);
 
@@ -178,7 +182,6 @@ const Gallery: React.FC<IGalleryProps> = props => {
             </LoadingAnimation>
           </LoadingAnimationContainer>
         )}
-        {error && <ErrorMessage>There was an error getting photos.</ErrorMessage>}
         <>
           <PrevButton
             onClick={onPrevClick}
